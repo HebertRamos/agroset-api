@@ -1,6 +1,7 @@
 package br.com.app.agrosetapi.seguranca.controller;
 
 import br.com.app.agrosetapi.seguranca.UsuarioRepository;
+import br.com.app.agrosetapi.seguranca.helper.LoggedUer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -20,7 +21,7 @@ import java.util.HashMap;
 public class UsuarioSessaoController {
 
     @Autowired
-    UsuarioRepository usuarioRepository;
+    LoggedUer loggedUer;
 
     @RequestMapping(path = "/isLogged", method = RequestMethod.GET)
     public void getSession() {
@@ -30,9 +31,6 @@ public class UsuarioSessaoController {
 
     @RequestMapping(path = "/user", method = RequestMethod.GET)
     public Object getUser(){
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        return usuarioRepository.findByEmail(auth.getName());
+        return loggedUer.getUsuarioLogado();
     }
 }
