@@ -47,6 +47,30 @@ create sequence public.seq_roles
  cache 1
 ;
 
+
+-------------- Fornecedor --------------
+
+create table public.tb_fornecedor(
+ fo_id integer not null,
+ fo_nome character varying(64) not null,
+ fo_documento character varying(64) not null
+);
+
+create index in_fo_id on public.tb_fornecedor (fo_id)
+;
+
+alter table public.tb_fornecedor add constraint pk_fo_id primary key (fo_id)
+;
+
+create sequence public.seq_fornecedor
+ increment by 1
+ start with 1
+ no maxvalue
+ no minvalue
+ cache 1
+;
+
+
 ----------------Item Compra -----------
 
 
@@ -80,6 +104,7 @@ create table public.tb_entrada_item(
  ei_data timestamp(6) not null,
  ei_quantidade numeric(18,8) not null,
  ic_id integer not null,
+ fo_id integer not null,
  us_id integer not null
 );
 
@@ -90,6 +115,9 @@ alter table public.tb_entrada_item add constraint pk_ei_id primary key (ei_id)
 ;
 
 alter table public.tb_entrada_item add constraint fk_entrada_item_ic_id foreign key (ic_id) references public.tb_item_compra (ic_id) on delete no action on update no action
+;
+
+alter table public.tb_entrada_item add constraint fk_entrada_item_fo_id foreign key (fo_id) references public.tb_fornecedor (fo_id) on delete no action on update no action
 ;
 
 alter table public.tb_entrada_item add constraint fk_entrada_item_us_id foreign key (us_id) references public.tb_usuario (us_id) on delete no action on update no action
@@ -136,6 +164,31 @@ create sequence public.seq_saida_item
 ;
 
 
+------------- Produto Venda --------------
+
+create table public.tb_produto_venda(
+ pvd_id integer not null,
+ pvd_preco numeric(18,8) not null,
+ pvd_foto character varying(254) not null,
+ ic_id integer not null
+);
+
+create index in_pvd_id on public.tb_produto_venda (pvd_id)
+;
+alter table public.tb_produto_venda add constraint pk_pvd_id primary key (pvd_id)
+;
+alter table public.tb_produto_venda add constraint fk_produto_venda_ic_id foreign key (ic_id) references public.tb_item_compra (ic_id) on delete no action on update no action
+;
+
+create sequence public.seq_produto_venda
+ increment by 1
+ start with 1
+ no maxvalue
+ no minvalue
+ cache 1
+;
+
+
 ------------- Venda --------------
 
 create table public.tb_venda(
@@ -170,7 +223,7 @@ create table public.tb_item_venda(
  ivd_id integer not null,
  ivd_quantidade numeric(18,8) not null,
  vd_id integer not null,
- ic_id integer not null
+ pvd_id integer not null
 );
 
 create index in_irs_id on public.tb_item_venda (ivd_id)
@@ -182,7 +235,7 @@ alter table public.tb_item_venda add constraint pk_ivd_id primary key (ivd_id)
 alter table public.tb_item_venda add constraint fk_item_reserva_vd_id foreign key (vd_id) references public.tb_venda (vd_id) on delete no action on update no action
 ;
 
-alter table public.tb_item_venda add constraint fk_item_compra_ic_id foreign key (ic_id) references public.tb_item_compra (ic_id) on delete no action on update no action
+alter table public.tb_item_venda add constraint fk_item_compra_pvd_id foreign key (pvd_id) references public.tb_produto_venda (pvd_id) on delete no action on update no action
 ;
 
 create sequence public.seq_item_venda
@@ -220,9 +273,10 @@ left join (
 ) as si_qtd on si_qtd.ic_id = ic.ic_id
 left join (
 
-	select iv.ic_id, sum(COALESCE( iv.ivd_quantidade , 0 )) as quantidade
+	select pvd.ic_id, sum(COALESCE( iv.ivd_quantidade , 0 )) as quantidade
 	from public.tb_item_venda iv
+	join public.tb_produto_venda pvd on pvd.pvd_id = iv.pvd_id
 	join public.tb_venda vd on vd.vd_id = iv.vd_id and vd.vd_tipo = 'RESERVA'
-	group by iv.ic_id
+	group by pvd.ic_id
 
 ) as iv_reserva on iv_reserva.ic_id = ic.ic_id

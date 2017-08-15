@@ -13,6 +13,6 @@ import java.util.List;
 public interface EntradaItemRepository extends JpaRepository<EntradaItem, Long> {
 
 
-    @Query("SELECT ei FROM EntradaItem ei JOIN FETCH ei.usuario us JOIN FETCH ei.itemCompra ic WHERE ic.id = :idItemCompra ")
+    @Query("SELECT ei FROM EntradaItem ei JOIN FETCH ei.usuario us JOIN FETCH ei.fornecedor fo JOIN FETCH ei.itemCompra ic WHERE ic.id = :idItemCompra ")
     public List<EntradaItem> buscarTodosPorItemCompra(@Param("idItemCompra") Long idItemCompra);
 }

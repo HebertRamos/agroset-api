@@ -2,6 +2,7 @@ package br.com.app.agrosetapi.estoque.entity;
 
 import br.com.app.agrosetapi.estoque.enumeration.AtivoInativoEnum;
 import br.com.app.agrosetapi.estoque.enumeration.UnidadeMedidaEnum;
+import br.com.app.agrosetapi.fornecedor.entity.Fornecedor;
 import br.com.app.agrosetapi.seguranca.entity.Usuario;
 
 import javax.persistence.Column;
@@ -49,6 +50,10 @@ public class EntradaItem {
     @JoinColumn(name = "IC_ID")
     private ItemCompra itemCompra;
 
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "FO_ID")
+    private Fornecedor fornecedor;
+
 
     public Long getId() {
         return id;
@@ -88,5 +93,13 @@ public class EntradaItem {
 
     public void setItemCompra(ItemCompra itemCompra) {
         this.itemCompra = itemCompra;
+    }
+
+    public Fornecedor getFornecedor() {
+        return fornecedor;
+    }
+
+    public void setFornecedor(Fornecedor fornecedor) {
+        this.fornecedor = fornecedor;
     }
 }
