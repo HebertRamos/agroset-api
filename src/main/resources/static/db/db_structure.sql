@@ -280,3 +280,45 @@ left join (
 	group by pvd.ic_id
 
 ) as iv_reserva on iv_reserva.ic_id = ic.ic_id
+
+
+------------- Categoria ---------
+
+create table public.tb_categoria(
+ ct_id integer not null,
+ ct_nome character varying(64) not null,
+ ct_id_pai integer null
+);
+
+create index in_ct_id on public.tb_usuario (us_id)
+;
+
+alter table public.tb_categoria add constraint pk_ct_id primary key (ct_id)
+;
+
+alter table public.tb_categoria add constraint fk_categoria_ct_id_pai foreign key (ct_id_pai) references public.tb_categoria (ct_id) on delete no action on update no action
+;
+
+create sequence public.seq_categoria
+ increment by 1
+ start with 1
+ no maxvalue
+ no minvalue
+ cache 1
+;
+
+--------------- Categoria Produto ------------
+
+create table public.tb_categoria_produto(
+ ct_id integer not null,
+ pvd_id integer not null
+);
+
+alter table public.tb_categoria_produto add constraint pk_ct_id_pvd_id primary key (ct_id,pvd_id)
+;
+
+alter table public.tb_categoria_produto add constraint fk_categoria_produto_ct_id foreign key (ct_id) references public.tb_categoria (ct_id) on delete no action on update no action
+;
+
+alter table public.tb_categoria_produto add constraint fk_categoria_produto_pvd_id foreign key (pvd_id) references public.tb_produto_venda (pvd_id) on delete no action on update no action
+;
